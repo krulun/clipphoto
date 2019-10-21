@@ -62,6 +62,8 @@
 
 
 第一步：
+<script>
+
  //用户上传图片后触发file:onchange
    setPhoto(e) {
     let _this = this;
@@ -152,6 +154,7 @@
       }
       return new Blob([ia], { type: mimeString });
     },
+ </script>
 
 这就已经大功告成啦，难点主要在获取图片滚动的距离后怎么进行裁剪，
 
