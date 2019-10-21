@@ -4,26 +4,6 @@
 
 前端根据矩形的图片，实现裁剪成正方形，并把裁剪后的文件上传给后台。
 
-1.初始页面如下，点击中间默认头像触发input:file点击，弹出选择文件框.
-
-
-
-
-
-2.开始选择照片，如下，为选择的照片，和选择照片后的效果图：
-
-
-
-
-
-3.此时图片的高度大于宽度，因此可以上下滚动，选择想要裁剪的范围，然后点击选取（下图从地铁导航处开始裁剪）。
-
-
-
-
-
-此时，已经裁剪到正方形图片，可以重新拍摄或者上传给后台。
-
 下面是代码
 
 
@@ -61,108 +41,7 @@
 </template>
 
 
-第一步：
-<script>
-  
- //用户上传图片后触发file:onchange
-  
-    setPhoto(e) {
-    let _this = this;
-    let file = e.target.files[0];
-    if (!file) return ''
-    //大于6兆，不允许上传
-    if (file.size > this.maxSize * 6) {
-      this.$toast('图片过大，不能大于6M')
-      return;
-    }
-    if (file.size > this.maxSize * 3) {
-      this.ratio = 0.5;
-    } else if (file.size > this.maxSize * 4) {
-      this.ratio = 0.4;
-    }
-    Lrz(file, { width: 1024, quality: this.ratio })
-      .then((rst) => {
-        // 把处理的好的图片给用户看看呗
-        // _this.$refs['avatar_img'].src = rst.base64;
-        _this.$refs['clip_avatar'].src = rst.base64;
-        _this.$nextTick(() => {
-          _this.avater_width_larger_height = _this.$refs['clip_avatar'].height < _this.$refs['clip_avatar'].width
-        })
-        _this.show_clip_img = true;
-        return rst;
-      }).then((rst) => {
-        this[this.currentType] = rst.file;
-      })
-  },
-  
-    checkClip(e) {//滑动图片适合位置后点击选取触发该方法，获取滚动的x和Y的距离传给setPhotoCanvas，以便canvas裁剪。
-      let sTop =  this.$refs['clip_img'].scrollTop;
-      let sLeft =  this.$refs['clip_img'].scrollLeft;
-      this.setPhotoCanvas(sTop, sLeft);
-    },
-    
-    //跟进图片x和Y方向滚动的距离，从而裁剪相应的图片
-    setPhotoCanvas(sTop, sLeft) {  
-      let reader = new FileReader();
-      reader.onloadend = (e) => {
-        let img = new Image();
-        img.onload = () => {
-          let w = Math.min(this.maxWidth, img.width);
-          let h = img.height * (w / img.width);
-          let [sw, sh, short, sx, sy] = [img.width, img.height, 0, 0, 0, 0]
-          console.log(document.body.clientWidth)
-          if (w < h) {
-            short = w;
-            sy = (sTop / document.body.clientWidth) * img.width
-            sh = sw;
-          } else { //w>h
-            short = h;
-            sx = (sLeft / document.body.clientWidth) * img.height
-            sw = sh;
-          }
-          let canvas = document.createElement('canvas');
-          let ctx1 = canvas.getContext('2d');
-          // 设置 canvas 的宽度和高度
-          canvas.width = short;
-          canvas.height = short;
-          ctx1.drawImage(img, sx, sy, sw, sh, 0, 0, short, short);
-          let base64 = canvas.toDataURL('image/png', this.ratio);
-          // 插入到预览区
-          debugger;
-          console.log(base64);
-          this.$refs[this.currentType + '_img'].src  =  base64;
-          this.show_clip_img = false;
-          this[this.currentType] = this.dataURItoBlob(base64);
-          console.log('size-------------------' + this[this.currentType].size)
-        };
-        img.src = e.target.result;
-      }
-      
-      reader.readAsDataURL(this[this.currentType]);
-    },
-    
-    dataURItoBlob: function(dataURI) {/把base64 的图片uri转换成二进制大对象，方便传给后台 
-      // convert base64/URLEncoded data component to raw binary data held in a string
-      let byteString;
-      if (dataURI.split(',')[0].indexOf('base64') >= 0) {
-        byteString = atob(dataURI.split(',')[1]);
-      } else {
-        byteString = unescape(dataURI.split(',')[1]);
-      }
-  
-      // separate out the mime component
-      let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-      // write the bytes of the string to a typed array
-      let ia = new Uint8Array(byteString.length);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      return new Blob([ia], { type: mimeString });
-    },
- </script>
-
-这就已经大功告成啦，难点主要在获取图片滚动的距离后怎么进行裁剪，
+难点主要在获取图片滚动的距离后怎么进行裁剪，
 
 ctx.drawImage(img, sx, sy, sw, sh, 0, 0, short, short);
 
