@@ -63,9 +63,10 @@
 
 第一步：
 <script>
-
+  
  //用户上传图片后触发file:onchange
-   setPhoto(e) {
+  
+    setPhoto(e) {
     let _this = this;
     let file = e.target.files[0];
     if (!file) return ''
@@ -93,12 +94,15 @@
         this[this.currentType] = rst.file;
       })
   },
-   checkClip(e) {//滑动图片适合位置后点击选取触发该方法，获取滚动的x和Y的距离传给setPhotoCanvas，以便canvas裁剪。
+  
+    checkClip(e) {//滑动图片适合位置后点击选取触发该方法，获取滚动的x和Y的距离传给setPhotoCanvas，以便canvas裁剪。
       let sTop =  this.$refs['clip_img'].scrollTop;
       let sLeft =  this.$refs['clip_img'].scrollLeft;
       this.setPhotoCanvas(sTop, sLeft);
     },
-   setPhotoCanvas(sTop, sLeft) {//跟进图片x和Y方向滚动的距离，从而裁剪相应的图片  
+    
+    //跟进图片x和Y方向滚动的距离，从而裁剪相应的图片
+    setPhotoCanvas(sTop, sLeft) {  
       let reader = new FileReader();
       reader.onloadend = (e) => {
         let img = new Image();
@@ -133,17 +137,19 @@
         };
         img.src = e.target.result;
       }
+      
       reader.readAsDataURL(this[this.currentType]);
     },
+    
     dataURItoBlob: function(dataURI) {/把base64 的图片uri转换成二进制大对象，方便传给后台 
-    // convert base64/URLEncoded data component to raw binary data held in a string
+      // convert base64/URLEncoded data component to raw binary data held in a string
       let byteString;
       if (dataURI.split(',')[0].indexOf('base64') >= 0) {
         byteString = atob(dataURI.split(',')[1]);
       } else {
         byteString = unescape(dataURI.split(',')[1]);
       }
-
+  
       // separate out the mime component
       let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
